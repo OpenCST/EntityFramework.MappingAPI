@@ -190,6 +190,176 @@ namespace EntityFramework.MappingAPI.Test.CodeFirst
         }
 
         [Test]
+        public void Entity_ComplextType_WhereComplexIsInsideTypeAndAlsoIsLastProperty()
+        {
+            using (var ctx = new TestContext())
+            {
+                var map = ctx.Db<TestUserWithSecondAddress>();
+
+
+                map.Prop(x => x.Id)
+                    .HasColumnName("Id")
+                    .IsPk()
+                    .IsFk(false)
+                    .IsNavigationProperty(false);
+
+                map.Prop(x => x.FirstName)
+                    .HasColumnName("Name")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+
+                map.Prop(x => x.LastName)
+                    .HasColumnName("LastName")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+
+                map.Prop(x => x.Contact.PhoneNumber)
+                    .HasColumnName("Contact_PhoneNumber")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+
+                map.Prop(x => x.Contact.Address.Country)
+                    .HasColumnName("Contact_Address_Country")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+
+                map.Prop(x => x.Contact.Address.County)
+                    .HasColumnName("Contact_Address_County")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+
+                map.Prop(x => x.Contact.Address.City)
+                    .HasColumnName("Contact_Address_City")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+
+                map.Prop(x => x.Contact.Address.PostalCode)
+                    .HasColumnName("Contact_Address_PostalCode")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+
+                map.Prop(x => x.Contact.Address.StreetAddress)
+                    .HasColumnName("Contact_Address_StreetAddress")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+#if !NET40
+                var propertyPropertyMap = map.Prop(x => x.Contact.Address.Location);
+                propertyPropertyMap
+                    .HasColumnName("Contact_Address_Location")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false);
+
+                Console.WriteLine(propertyPropertyMap.DefaultValue);
+                Console.WriteLine(propertyPropertyMap.FixedLength);
+                Console.WriteLine(propertyPropertyMap.MaxLength);
+                Console.WriteLine(propertyPropertyMap.Precision);
+                Console.WriteLine(propertyPropertyMap.Scale);
+                Console.WriteLine(propertyPropertyMap.Type);
+                Console.WriteLine(propertyPropertyMap.Unicode);
+
+                var shapePropertyMap = map.Prop(x => x.Contact.Address.Shape);
+                shapePropertyMap
+                    .HasColumnName("Contact_Address_Shape")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false);
+
+                Console.WriteLine(shapePropertyMap.DefaultValue);
+                Console.WriteLine(shapePropertyMap.FixedLength);
+                Console.WriteLine(shapePropertyMap.MaxLength);
+                Console.WriteLine(shapePropertyMap.Precision);
+                Console.WriteLine(shapePropertyMap.Scale);
+                Console.WriteLine(shapePropertyMap.Type);
+                Console.WriteLine(shapePropertyMap.Unicode);
+#endif
+                map.Prop(x => x.Address.Country)
+                    .HasColumnName("Address_Country")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+
+                map.Prop(x => x.Address.County)
+                    .HasColumnName("Address_County")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+
+                map.Prop(x => x.Address.City)
+                    .HasColumnName("Address_City")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+
+                map.Prop(x => x.Address.PostalCode)
+                    .HasColumnName("Address_PostalCode")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+
+                map.Prop(x => x.Address.StreetAddress)
+                    .HasColumnName("Address_StreetAddress")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false)
+                    .MaxLength(NvarcharMax);
+#if !NET40
+                propertyPropertyMap = map.Prop(x => x.Address.Location);
+                propertyPropertyMap
+                    .HasColumnName("Address_Location")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false);
+
+                Console.WriteLine(propertyPropertyMap.DefaultValue);
+                Console.WriteLine(propertyPropertyMap.FixedLength);
+                Console.WriteLine(propertyPropertyMap.MaxLength);
+                Console.WriteLine(propertyPropertyMap.Precision);
+                Console.WriteLine(propertyPropertyMap.Scale);
+                Console.WriteLine(propertyPropertyMap.Type);
+                Console.WriteLine(propertyPropertyMap.Unicode);
+
+                shapePropertyMap = map.Prop(x => x.Address.Shape);
+                shapePropertyMap
+                    .HasColumnName("Address_Shape")
+                    .IsPk(false)
+                    .IsFk(false)
+                    .IsNavigationProperty(false);
+
+                Console.WriteLine(shapePropertyMap.DefaultValue);
+                Console.WriteLine(shapePropertyMap.FixedLength);
+                Console.WriteLine(shapePropertyMap.MaxLength);
+                Console.WriteLine(shapePropertyMap.Precision);
+                Console.WriteLine(shapePropertyMap.Scale);
+                Console.WriteLine(shapePropertyMap.Type);
+                Console.WriteLine(shapePropertyMap.Unicode);
+#endif
+
+
+            }
+        }
+
+        [Test]
         public void Entity_TPT_WorkerTPT()
         {
             using (var ctx = GetContext())

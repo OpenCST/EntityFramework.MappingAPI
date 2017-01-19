@@ -173,6 +173,7 @@
     <Compile Include="CodeFirst\Domain\Page.cs" />
     <Compile Include="CodeFirst\Domain\PageTranslations.cs" />
     <Compile Include="CodeFirst\Domain\TestUser.cs" />
+    <Compile Include="CodeFirst\Domain\TestUserWithSecondAddress.cs" />
     <Compile Include="CodeFirst\MappingTest.cs" />
     <Compile Include="CodeFirst\TestBase.cs" />
     <Compile Include="CodeFirst\TestContext.cs" />
