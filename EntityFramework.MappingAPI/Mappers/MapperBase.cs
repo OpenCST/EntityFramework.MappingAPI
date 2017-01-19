@@ -351,9 +351,19 @@ namespace EntityFramework.MappingAPI.Mappers
             string prefix = null;
             int i = 0;
 
-            var propertiesToMap = GetPropertiesToMap(entityMap, storageEntitySet.ElementType.Properties);
+            //TPH needs to map all properties in other case, it mixes them is some cases
+            //   Base - P1,P2,P3
+            //     |
+            //     A - N1,P4ref
+            //     |
+            //     B - N2,P5ref
+            //     |
+            //     C - N3,P6ref
+            //   Mapping B it mixes doscriminator with N1 ...
+            var propertiesToMap = entityMap.IsTph ? storageEntitySet.ElementType.Properties.Take(storageEntitySet.ElementType.Properties.Count - 1) : GetPropertiesToMap(entityMap, storageEntitySet.ElementType.Properties);
+            
             foreach (var edmProperty in propertiesToMap)
-            {
+                {
                 MapProperty(entityMap, edmProperty, ref i, ref prefix);
             }
 
@@ -425,9 +435,7 @@ namespace EntityFramework.MappingAPI.Mappers
                 {
                     break;
                 }
-
                 include.AddRange(parent.Properties.Cast<PropertyMap>().Select(x => x.EdmProperty));
-
                 exclude.AddRange(_entityMaps.Values.Where(x => x.ParentEdmType == parentEdmType)
                     .SelectMany(x => x.Properties)
                     .Cast<PropertyMap>()
@@ -435,8 +443,8 @@ namespace EntityFramework.MappingAPI.Mappers
 
                 parentEdmType = parent.ParentEdmType;
             }
-
-            return properties.Where(edmProperty => include.Contains(edmProperty) || !exclude.Contains(edmProperty)).ToList();
+            var ret = properties.Where(edmProperty => include.Contains(edmProperty) || !exclude.Contains(edmProperty)).ToList();
+            return ret;
         }
 
         /// <summary>
