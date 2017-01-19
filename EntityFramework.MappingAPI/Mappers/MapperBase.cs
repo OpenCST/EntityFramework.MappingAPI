@@ -360,7 +360,8 @@ namespace EntityFramework.MappingAPI.Mappers
             //     |
             //     C - N3,P6ref
             //   Mapping B it mixes doscriminator with N1 ...
-            var propertiesToMap = entityMap.IsTph ? storageEntitySet.ElementType.Properties.Take(storageEntitySet.ElementType.Properties.Count - 1) : GetPropertiesToMap(entityMap, storageEntitySet.ElementType.Properties);
+            var propertiesToMap =  GetPropertiesToMap(entityMap, storageEntitySet.ElementType.Properties);
+            //var propertiesToMap = entityMap.IsTph ? storageEntitySet.ElementType.Properties.Take(storageEntitySet.ElementType.Properties.Count - 1) : GetPropertiesToMap(entityMap, storageEntitySet.ElementType.Properties);
             
             foreach (var edmProperty in propertiesToMap)
                 {
@@ -460,11 +461,17 @@ namespace EntityFramework.MappingAPI.Mappers
             var entityMembers = TphData[identity].Properties;
             var columnName = edmProperty.Name;
 
-            if (entityMembers.Length <= i)
+            EdmMember edmMember;
+            if(entityMembers.Length <= i)
             {
-                return;
+                if(prefix != null) { edmMember = entityMembers[i-1]; }
+                else
+                { return; }
             }
-            EdmMember edmMember = entityMembers[i];
+            else
+            {
+                edmMember = entityMembers[i];
+            }
 
             // check if is complex type
             if (string.IsNullOrEmpty(prefix) && edmMember.TypeUsage.EdmType.GetType() == typeof(ComplexType))
