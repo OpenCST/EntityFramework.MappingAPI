@@ -360,6 +360,71 @@ namespace EntityFramework.MappingAPI.Test.CodeFirst
         }
 
         [Test]
+        public void Entity_TPH_MultipleInheritence()
+        {
+            using(var ctx = GetContext())
+            {
+                var map = ctx.Db<MultipleInheritenceBase>();
+                map.Prop(x => x.Id).IsPk().IsFk(false).HasColumnName("Id").IsNavigationProperty(false);
+                map.Prop(x => x.DateTime).HasColumnName("DateTime").IsNavigationProperty(false);
+                map.Prop(x => x.String).HasColumnName("String").IsNavigationProperty(false);
+                map.Prop(x => x.Int).HasColumnName("Int").IsNavigationProperty(false);
+
+                var mapA = ctx.Db<MiA>();
+                mapA.Prop(x => x.Id).IsPk().IsFk(false).HasColumnName("Id").IsNavigationProperty(false);
+                mapA.Prop(x => x.DateTime).HasColumnName("DateTime").IsNavigationProperty(false);
+                mapA.Prop(x => x.String).HasColumnName("String").IsNavigationProperty(false);
+                mapA.Prop(x => x.Int).HasColumnName("Int").IsNavigationProperty(false);
+                mapA.Prop(x => x.MiRefARefId).HasColumnName("MiRefARefId").IsNavigationProperty(false);
+
+                var mapB = ctx.Db<MiB>();
+                mapB.Prop(x => x.Id).IsPk().IsFk(false).HasColumnName("Id").IsNavigationProperty(false);
+                mapB.Prop(x => x.DateTime).HasColumnName("DateTime").IsNavigationProperty(false);
+                mapB.Prop(x => x.String).HasColumnName("String").IsNavigationProperty(false);
+                mapB.Prop(x => x.Int).HasColumnName("Int").IsNavigationProperty(false);
+                mapB.Prop(x => x.MiRefARefId).HasColumnName("MiRefARefId").IsNavigationProperty(false);
+                mapB.Prop(x => x.MiRefBRefId).HasColumnName("MiRefBRefId").IsNavigationProperty(false);
+
+                var mapC = ctx.Db<MiC>();
+                mapC.Prop(x => x.Id).IsPk().IsFk(false).HasColumnName("Id").IsNavigationProperty(false);
+                mapC.Prop(x => x.DateTime).HasColumnName("DateTime").IsNavigationProperty(false);
+                mapC.Prop(x => x.String).HasColumnName("String").IsNavigationProperty(false);
+                mapC.Prop(x => x.Int).HasColumnName("Int").IsNavigationProperty(false);
+                mapC.Prop(x => x.MiRefARefId).HasColumnName("MiRefARefId").IsNavigationProperty(false);
+                mapC.Prop(x => x.MiRefBRefId).HasColumnName("MiRefBRefId").IsNavigationProperty(false);
+                mapC.Prop(x => x.MiRefCRefId).HasColumnName("MiRefCRefId").IsNavigationProperty(false);
+            }
+        }
+
+        [Test]
+        public void Entity_TPH_FlatInheritence()
+        {
+            using (var ctx = GetContext())
+            {
+                var map = ctx.Db<FlatInheritenceBase>();
+                map.Prop(x => x.Id).IsPk().IsFk(false).HasColumnName("Id").IsNavigationProperty(false);
+                map.Prop(x => x.DateTime).HasColumnName("DateTime").IsNavigationProperty(false);
+                map.Prop(x => x.String).HasColumnName("String").IsNavigationProperty(false);
+                map.Prop(x => x.Int).HasColumnName("Int").IsNavigationProperty(false);
+
+                var mapA = ctx.Db<FiA>();
+                mapA.Prop(x => x.Id).IsPk().IsFk(false).HasColumnName("Id").IsNavigationProperty(false);
+                mapA.Prop(x => x.DateTime).HasColumnName("DateTime").IsNavigationProperty(false);
+                mapA.Prop(x => x.String).HasColumnName("String").IsNavigationProperty(false);
+                mapA.Prop(x => x.Int).HasColumnName("Int").IsNavigationProperty(false);
+                mapA.Prop(x => x.StringA).HasColumnName("StringA").IsNavigationProperty(false);
+
+                var mapB = ctx.Db<FiB>();
+                mapB.Prop(x => x.Id).IsPk().IsFk(false).HasColumnName("Id").IsNavigationProperty(false);
+                mapB.Prop(x => x.DateTime).HasColumnName("DateTime").IsNavigationProperty(false);
+                mapB.Prop(x => x.String).HasColumnName("String").IsNavigationProperty(false);
+                mapB.Prop(x => x.Int).HasColumnName("Int").IsNavigationProperty(false);
+                mapB.Prop(x => x.StringB).HasColumnName("StringB").IsNavigationProperty(false);
+            }
+        }
+
+
+        [Test]
         public void Entity_TPT_WorkerTPT()
         {
             using (var ctx = GetContext())

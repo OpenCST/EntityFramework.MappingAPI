@@ -28,6 +28,11 @@ namespace EntityFramework.MappingAPI.Test.CodeFirst
 
         private const string ContractDiscriminator = "__typeid";
 
+        public DbSet<FlatInheritenceBase> Fis { get; set; }
+        public DbSet<MultipleInheritenceBase> Mis { get; set; }
+        public DbSet<MiRefA> MiRefAs { get; set; }
+        //public DbSet<MiRefB> MiRefBs { get; set; }
+        //public DbSet<MiRefC> MiRefCs { get; set; }
 
         public DbSet<TestUser> Users { get; set; }
         public DbSet<TestUserWithSecondAddress> UsersWithSecondAddresses { get; set; }

@@ -167,9 +167,11 @@
     <Compile Include="CodeFirst\Domain\Entity.cs" />
     <Compile Include="CodeFirst\Domain\EntityWithMappedPk.cs" />
     <Compile Include="CodeFirst\Domain\EntityWithTypedId.cs" />
+    <Compile Include="CodeFirst\Domain\FlatInheritenceBase.cs" />
     <Compile Include="CodeFirst\Domain\Foo.cs" />
     <Compile Include="CodeFirst\Domain\House.cs" />
     <Compile Include="CodeFirst\Domain\MeteringPoint.cs" />
+    <Compile Include="CodeFirst\Domain\MultipleInheritenceBase.cs" />
     <Compile Include="CodeFirst\Domain\Page.cs" />
     <Compile Include="CodeFirst\Domain\PageTranslations.cs" />
     <Compile Include="CodeFirst\Domain\TestUser.cs" />

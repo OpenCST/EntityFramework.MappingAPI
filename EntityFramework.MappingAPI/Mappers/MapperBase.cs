@@ -327,19 +327,15 @@ namespace EntityFramework.MappingAPI.Mappers
                 return null;
             }
 
-            var temp = PrepareMapping(typeFullName, edmItem);
-            if (temp == null)
-            {
-                return null;
-            }
-            var storageEntitySet = temp.StorageEntitySet;
-            var tableName = temp.TableName;
-            var isRoot = temp.IsRoot;
-            var baseEdmType = temp.BaseEdmType;
+            var prepareMappingRes = PrepareMapping(typeFullName, edmItem);
+            if (prepareMappingRes == null){return null;}
 
-            string schema = (string)storageEntitySet.MetadataProperties["Schema"].Value;
+            var storageEntitySet = prepareMappingRes.StorageEntitySet;
+            var tableName = prepareMappingRes.TableName;
+            var isRoot = prepareMappingRes.IsRoot;
+            var baseEdmType = prepareMappingRes.BaseEdmType;
 
-            var entityMap = RegEntity(typeFullName, tableName, schema);
+            var entityMap = RegEntity(typeFullName, tableName, storageEntitySet.Schema);
             entityMap.IsRoot = isRoot;
             entityMap.EdmType = edmItem;
             entityMap.ParentEdmType = entityMap.IsRoot ? null : baseEdmType;
@@ -351,20 +347,8 @@ namespace EntityFramework.MappingAPI.Mappers
             string prefix = null;
             int i = 0;
 
-            //TPH needs to map all properties in other case, it mixes them is some cases
-            //   Base - P1,P2,P3
-            //     |
-            //     A - N1,P4ref
-            //     |
-            //     B - N2,P5ref
-            //     |
-            //     C - N3,P6ref
-            //   Mapping B it mixes doscriminator with N1 ...
-            var propertiesToMap =  GetPropertiesToMap(entityMap, storageEntitySet.ElementType.Properties);
-            //var propertiesToMap = entityMap.IsTph ? storageEntitySet.ElementType.Properties.Take(storageEntitySet.ElementType.Properties.Count - 1) : GetPropertiesToMap(entityMap, storageEntitySet.ElementType.Properties);
-            
-            foreach (var edmProperty in propertiesToMap)
-                {
+            var propertiesToMap = this.GetPropertiesToMapOld(entityMap, storageEntitySet.ElementType.Properties);
+            foreach (var edmProperty in propertiesToMap) {
                 MapProperty(entityMap, edmProperty, ref i, ref prefix);
             }
 
@@ -417,16 +401,31 @@ namespace EntityFramework.MappingAPI.Mappers
         /// <param name="entityMap"></param>
         /// <param name="properties"></param>
         /// <returns></returns>
-        private IEnumerable<EdmProperty> GetPropertiesToMap(EntityMap entityMap, IEnumerable<EdmProperty> properties)
+        private IEnumerable<EdmProperty> GetOwnEdmTypeProperties(EntityMap entityMap, IEnumerable<EdmProperty> properties)
         {
             if (entityMap.IsRoot)
             {
                 return properties;
             }
+            var edmType = entityMap.EdmType as EntityType;
+            var edmTypeProperties = edmType.Properties;
+            return edmTypeProperties.Select(edmProperty => properties.FirstOrDefault(baseEdmProperty => baseEdmProperty.Name == edmProperty.Name) ?? edmProperty);
+        }
 
+        private IEnumerable<EdmProperty> GetPropertiesToMapOld(EntityMap entityMap, IEnumerable<EdmProperty> properties)
+        {
+            if (entityMap.IsRoot)
+            {
+                return properties;
+            }
+            if(entityMap.IsTph)
+            {
+                var preferedNames = properties.SelectMany(p => p.MetadataProperties.Where(mp => mp.Name == "PreferredName")).Select(mpp => mpp.Value);
+                if(preferedNames.Count() != preferedNames.Distinct().Count()) throw new NotSupportedException("Propery override not supported!");
+            }
             var parentEdmType = entityMap.ParentEdmType;
 
-            var include = new List<EdmProperty>();
+            var include = new List<EdmProperty>(this.GetOwnEdmTypeProperties(entityMap, properties));
             var exclude = new List<EdmProperty>();
 
             while (true)
@@ -444,8 +443,7 @@ namespace EntityFramework.MappingAPI.Mappers
 
                 parentEdmType = parent.ParentEdmType;
             }
-            var ret = properties.Where(edmProperty => include.Contains(edmProperty) || !exclude.Contains(edmProperty)).ToList();
-            return ret;
+            return properties.Where(edmProperty => include.Contains(edmProperty) || !exclude.Contains(edmProperty)).ToList();
         }
 
         /// <summary>
