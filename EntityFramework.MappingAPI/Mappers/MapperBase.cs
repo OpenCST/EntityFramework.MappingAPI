@@ -327,19 +327,15 @@ namespace EntityFramework.MappingAPI.Mappers
                 return null;
             }
 
-            var temp = PrepareMapping(typeFullName, edmItem);
-            if (temp == null)
-            {
-                return null;
-            }
-            var storageEntitySet = temp.StorageEntitySet;
-            var tableName = temp.TableName;
-            var isRoot = temp.IsRoot;
-            var baseEdmType = temp.BaseEdmType;
+            var prepareMappingRes = PrepareMapping(typeFullName, edmItem);
+            if (prepareMappingRes == null){return null;}
 
-            string schema = (string)storageEntitySet.MetadataProperties["Schema"].Value;
+            var storageEntitySet = prepareMappingRes.StorageEntitySet;
+            var tableName = prepareMappingRes.TableName;
+            var isRoot = prepareMappingRes.IsRoot;
+            var baseEdmType = prepareMappingRes.BaseEdmType;
 
-            var entityMap = RegEntity(typeFullName, tableName, schema);
+            var entityMap = RegEntity(typeFullName, tableName, storageEntitySet.Schema);
             entityMap.IsRoot = isRoot;
             entityMap.EdmType = edmItem;
             entityMap.ParentEdmType = entityMap.IsRoot ? null : baseEdmType;
@@ -351,9 +347,8 @@ namespace EntityFramework.MappingAPI.Mappers
             string prefix = null;
             int i = 0;
 
-            var propertiesToMap = GetPropertiesToMap(entityMap, storageEntitySet.ElementType.Properties);
-            foreach (var edmProperty in propertiesToMap)
-            {
+            var propertiesToMap = this.GetPropertiesToMapOld(entityMap, storageEntitySet.ElementType.Properties);
+            foreach (var edmProperty in propertiesToMap) {
                 MapProperty(entityMap, edmProperty, ref i, ref prefix);
             }
 
@@ -406,16 +401,31 @@ namespace EntityFramework.MappingAPI.Mappers
         /// <param name="entityMap"></param>
         /// <param name="properties"></param>
         /// <returns></returns>
-        private IEnumerable<EdmProperty> GetPropertiesToMap(EntityMap entityMap, IEnumerable<EdmProperty> properties)
+        private IEnumerable<EdmProperty> GetOwnEdmTypeProperties(EntityMap entityMap, IEnumerable<EdmProperty> properties)
         {
             if (entityMap.IsRoot)
             {
                 return properties;
             }
+            var edmType = entityMap.EdmType as EntityType;
+            var edmTypeProperties = edmType.Properties;
+            return edmTypeProperties.Select(edmProperty => properties.FirstOrDefault(baseEdmProperty => baseEdmProperty.Name == edmProperty.Name) ?? edmProperty);
+        }
 
+        private IEnumerable<EdmProperty> GetPropertiesToMapOld(EntityMap entityMap, IEnumerable<EdmProperty> properties)
+        {
+            if (entityMap.IsRoot)
+            {
+                return properties;
+            }
+            if(entityMap.IsTph)
+            {
+                var preferedNames = properties.SelectMany(p => p.MetadataProperties.Where(mp => mp.Name == "PreferredName")).Select(mpp => mpp.Value);
+                if(preferedNames.Count() != preferedNames.Distinct().Count()) throw new NotSupportedException("Propery override not supported!");
+            }
             var parentEdmType = entityMap.ParentEdmType;
 
-            var include = new List<EdmProperty>();
+            var include = new List<EdmProperty>(this.GetOwnEdmTypeProperties(entityMap, properties));
             var exclude = new List<EdmProperty>();
 
             while (true)
@@ -425,9 +435,7 @@ namespace EntityFramework.MappingAPI.Mappers
                 {
                     break;
                 }
-
                 include.AddRange(parent.Properties.Cast<PropertyMap>().Select(x => x.EdmProperty));
-
                 exclude.AddRange(_entityMaps.Values.Where(x => x.ParentEdmType == parentEdmType)
                     .SelectMany(x => x.Properties)
                     .Cast<PropertyMap>()
@@ -435,7 +443,6 @@ namespace EntityFramework.MappingAPI.Mappers
 
                 parentEdmType = parent.ParentEdmType;
             }
-
             return properties.Where(edmProperty => include.Contains(edmProperty) || !exclude.Contains(edmProperty)).ToList();
         }
 
@@ -452,11 +459,17 @@ namespace EntityFramework.MappingAPI.Mappers
             var entityMembers = TphData[identity].Properties;
             var columnName = edmProperty.Name;
 
-            if (entityMembers.Length <= i)
+            EdmMember edmMember;
+            if(entityMembers.Length <= i)
             {
-                return;
+                if(prefix != null) { edmMember = entityMembers[i-1]; }
+                else
+                { return; }
             }
-            EdmMember edmMember = entityMembers[i];
+            else
+            {
+                edmMember = entityMembers[i];
+            }
 
             // check if is complex type
             if (string.IsNullOrEmpty(prefix) && edmMember.TypeUsage.EdmType.GetType() == typeof(ComplexType))

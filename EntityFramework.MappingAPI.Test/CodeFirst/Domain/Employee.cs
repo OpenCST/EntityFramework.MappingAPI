@@ -42,7 +42,7 @@ namespace EntityFramework.MappingAPI.Test.CodeFirst.Domain
     public class ManagerTPH : EmployeeTPH
     {
         public string Rank { get; set; }
-        public int? RefId { get; set; }
+        public int? RefIdNullable { get; set; }
         public virtual ICollection<AWorkerTPH> Henchmen { get; set; } 
     }
 }

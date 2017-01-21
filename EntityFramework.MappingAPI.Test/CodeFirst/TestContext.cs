@@ -28,8 +28,14 @@ namespace EntityFramework.MappingAPI.Test.CodeFirst
 
         private const string ContractDiscriminator = "__typeid";
 
+        public DbSet<FlatInheritenceBase> Fis { get; set; }
+        public DbSet<MultipleInheritenceBase> Mis { get; set; }
+        public DbSet<MiRefA> MiRefAs { get; set; }
+        //public DbSet<MiRefB> MiRefBs { get; set; }
+        //public DbSet<MiRefC> MiRefCs { get; set; }
 
         public DbSet<TestUser> Users { get; set; }
+        public DbSet<TestUserWithSecondAddress> UsersWithSecondAddresses { get; set; }
  
         public DbSet<Page> Pages { get; set; } 
 
@@ -65,6 +71,11 @@ namespace EntityFramework.MappingAPI.Test.CodeFirst
             mb.Entity<TestUser>().Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
             mb.Entity<TestUser>().Property(x => x.FirstName).HasColumnName("Name");
             mb.Entity<TestUser>().Ignore(x => x.FullName);
+
+            mb.Entity<TestUserWithSecondAddress>().ToTable("UserWithSecondAddress");
+            mb.Entity<TestUserWithSecondAddress>().Property(x => x.Id).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+            mb.Entity<TestUserWithSecondAddress>().Property(x => x.FirstName).HasColumnName("Name");
+            mb.Entity<TestUserWithSecondAddress>().Ignore(x => x.FullName);
 
             mb.Entity<Page>().HasKey(x => x.PageId);
             mb.Entity<Page>().Property(x => x.Title).HasMaxLength(255).IsRequired();

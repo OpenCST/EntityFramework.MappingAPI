@@ -102,8 +102,8 @@ namespace EntityFramework.MappingAPI.Test.CodeFirst
                 map.Prop(x => x.Rank)
                     .HasColumnName("Rank");
 
-                map.Prop(x => x.RefId)
-                    .HasColumnName("RefId1");
+                map.Prop(x => x.RefIdNullable)
+                    .HasColumnName("RefIdNullable");
 
                 Assert.AreEqual(1, map.Discriminators.Length);
                 Assert.AreEqual("__employeeType", map.Discriminators[0].ColumnName);
